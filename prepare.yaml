@@ -1,0 +1,52 @@
+- name: Add hostnames to route53
+  hosts: tag_role_ocp
+ 
+  tasks:
+
+  - name: Add hostname to private domain in route53
+    route53:
+      command: create
+      zone: "{{ my_domain }}"
+      record: "{{ ec2_tag_Name }}.{{ my_domain }}"
+      type: CNAME
+      ttl: 60
+      value: "{{ ec2_private_dns_name }}"
+      private_zone: yes
+      wait: no
+      overwrite: yes
+    delegate_to: localhost
+
+  - name: Add hostname to public domain in route53
+    route53:
+      command: create
+      zone: "{{ my_domain }}"
+      record: "{{ ec2_tag_Name }}.{{ my_domain }}"
+      type: CNAME
+      ttl: 60
+      value: "{{ ec2_public_dns_name }}"
+      private_zone: no
+      wait: no
+      overwrite: yes
+    when:  ec2_ip_address | ipaddr 
+    delegate_to: localhost
+
+- name: Update IPTables on storage nodes.
+  hosts: tag_ocp_role_storage
+  remote_user: cloud-user
+  become: true
+
+  tasks:
+  - name: Copy Iptables.
+    copy:
+      src: iptables
+      dest: /etc/sysconfig/iptables
+      mode: 0600
+      owner: root
+      group: root
+
+  - name: restart iptables
+    service: 
+      name: iptables 
+      state: reloaded
+
+

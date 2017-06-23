@@ -1,0 +1,26 @@
+- name: Start hosts
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+  - name: Ensure nodes are running
+    ec2:
+      region: "{{ my_region }}"
+      instance_tags:
+        role: ocp
+      state: running
+  - name: update hostname in public domain in route53
+    route53:
+      command: create
+      zone: "{{ my_domain }}"
+      record: "{{ ec2_tag_Name }}.{{ my_domain }}"
+      type: CNAME
+      ttl: 60
+      value: "{{ ec2_public_dns_name }}"
+      private_zone: no
+      wait: no
+      overwrite: yes
+    when:  ec2_ip_address | ipaddr 
+    delegate_to: localhost
+

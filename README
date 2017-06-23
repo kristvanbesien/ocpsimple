@@ -1,0 +1,46 @@
+= This is a simple openshift lab.
+
+== Prerequisites.
+
+. AWS command line tools. 
++
+AWS_SECRET_ACCESS_KEY and  AWS_ACCESS_KEY_ID set
+
+. Dynamic ansible inventory set up properly
++
+My .ansible.cfg contains this:
++
+----
+[defaults]
+inventory=/home/ec2-user/inventory/
+roles_path=/home/ec2-user/ansible-lib/roles
+host_key_checking=false
+----
++
+( ansible all -m ping should ping all your instances...)
+
+== Build a small openshift cluster
++
+. Copy or link ocpcluster in to the inventory file. 
++
+----
+ln -s /home/ec2-user/ocp-simple/ocpcluster /home/ec2-user/inventory/
+----
+
+. Create your cluster using the awscreate.yaml playbook. 
++
+This should create a small cluster with a master node, and infra node, three
+app nodes and three storage nodes, all correctly tagged so the openshift instal
+playbook works. 
+
+
+. Configure it using: 
++
+----
+ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+----
+
+== Use
+
+. There are two playbooks, start.yaml and stop.yaml that can be used to start/stop your nodes.
+
