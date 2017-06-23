@@ -20,7 +20,7 @@ host_key_checking=false
 ( ansible all -m ping should ping all your instances...)
 
 == Build a small openshift cluster
-+
+
 . Copy or link ocpcluster in to the inventory file. 
 +
 ----
